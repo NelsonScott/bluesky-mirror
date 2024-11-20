@@ -1,6 +1,7 @@
 import json
 from atproto import Client
 from playwright.sync_api import sync_playwright
+import requests
 
 CREDS_PATH = "credentials.json"
 HEADLESS = False
@@ -42,11 +43,24 @@ def post_to_bluesky(tweet_url: str):
     tweet_content = get_tweet_data(tweet_url)
     tweet_text = tweet_content['legacy']['full_text']
 
+    # Extract media URLs if available
+    media_urls = []
+    if 'extended_entities' in tweet_content['legacy']:
+        media = tweet_content['legacy']['extended_entities']['media']
+        media_urls = [item['media_url_https'] for item in media]
+
     client = Client()
     creds = json.load(open(CREDS_PATH))
     username = creds['username']
     password = creds['password']
     client.login(username, password)
     
-    post = client.send_post(tweet_text)
+    # Download media files
+    if media_urls:
+        print(f"\n\nMedia URLs: {media_urls}")
+        img_data = requests.get(media_urls[0]).content
+        post = client.send_image(text=tweet_text, image=img_data, image_alt="Image Alt")
+    else:
+        post = client.send_post(tweet_text)
+
     return post
