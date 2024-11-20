@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+atproto = "*"
+requests = "*"
+bs4 = "*"
+selenium = "*"
+playwright = "*"
+
+[dev-packages]
+ipython = "*"
+ipdb = "*"
+
+[requires]
+python_version = "3.13"
