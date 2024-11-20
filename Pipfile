@@ -9,6 +9,7 @@ requests = "*"
 bs4 = "*"
 selenium = "*"
 playwright = "*"
+flask = "*"
 
 [dev-packages]
 ipython = "*"
