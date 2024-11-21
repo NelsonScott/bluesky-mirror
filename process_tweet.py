@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright
 import requests
 
 CREDS_PATH = "credentials.json"
-HEADLESS = False
+HEADLESS = True
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,8 +30,12 @@ def get_tweet_data(url: str) -> dict:
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=HEADLESS)
-        context = browser.new_context(viewport={"width": 1920, "height": 1080})
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+            viewport={"width": 1920, "height": 1080}
+        )
         page = context.new_page()
+
 
         # enable background request intercepting:
         page.on("response", intercept_response)
@@ -98,7 +102,6 @@ def post_to_bluesky(tweet_url: str):
         logging.info(f"Posting tweet with image.")
         post = client.send_image(text=tweet_text, image=img_data, image_alt="Image Alt")
     else:
-        logging.info(f"Tweet text: {tweet_text}")
         post = client.send_post(tweet_text)
 
     return post
