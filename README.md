@@ -1,5 +1,5 @@
 # 🐦 Bluesky Mirror 🦋
-A simple tool to copy a Tweet and post it directly to Bluesky with a sleek, user-friendly interface.
+A simple tool to copy a Tweet and post it directly to Bluesky with a friendly interface.
 
 Just run the app, enter a twitter URL and it'll scrape the data for you and post it on Bluesky.
 
