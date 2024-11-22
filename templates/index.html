@@ -11,7 +11,7 @@
             font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
-            background: #f1f5f9;  /* Much lighter background */
+            background: #f9fafb;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -35,7 +35,7 @@
             position: relative;
             z-index: 1;
             padding: 2rem 1rem;
-            max-width: 1200px;  /* Increased to accommodate both card and image */
+            max-width: 1200px;
         }
 
         .row {
@@ -43,26 +43,35 @@
         }
 
         .card {
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             padding: 2.5rem;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             text-align: center;
             height: 100%;
         }
 
-        .blue-bird-img {
+        .blue-bird {
             max-width: 100%;
             height: auto;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            /* Removed border-radius and box-shadow */
+            /* Added mix-blend-mode to help with transparency */
+            mix-blend-mode: lighten;
+        }
+
+        .blue-bird-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Remove any background styling */
+            background: transparent;
         }
 
         h1 {
             font-size: 2.5rem;
-            color: #0f172a;
+            color: #fff;
             font-weight: 700;
             margin-bottom: 1rem;
             background: linear-gradient(135deg, #38bdf8, #818cf8);
@@ -87,24 +96,24 @@
         }
 
         .form-control {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(56, 189, 248, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 0.875rem 1rem;
-            color: #1e293b;
+            color: #fff;
             font-size: 1rem;
             transition: all 0.3s ease;
             text-align: center;
         }
 
         .form-control:focus {
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
             border-color: rgba(56, 189, 248, 0.5);
             box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
         }
 
         .form-control::placeholder {
-            color: #94a3b8;
+            color: #64748b;
             text-align: center;
         }
 
@@ -128,7 +137,7 @@
         footer {
             position: fixed;
             bottom: 1rem;
-            color: #475569;
+            color: #94a3b8;
             text-align: center;
             font-size: 0.875rem;
             width: 100%;
@@ -155,7 +164,7 @@
         }
 
         @media (max-width: 768px) {
-            .blue-bird-img {
+            .blue-bird {
                 margin-top: 2rem;
             }
         }
@@ -180,12 +189,14 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <img src="/static/images/blue-bird.png" alt="Tweet Blue Illustration" class="blue-bird-img">
+                <div class="blue-bird-container">
+                    <img src="/static/images/blue-bird.png" alt="Tweet Blue Illustration" class="blue-bird">
+                </div>
             </div>
         </div>
     </div>
     <footer>
-        Made with ❤️ by [Your Name] • <a href="#">Learn More</a>
+        Made by <a href="https://github.com/nelsonscott">Scott Nelson</a>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
