@@ -18,8 +18,7 @@ pipenv install
 make run
 ```
 
-###
-License
+## License
 This project is licensed under the MIT License.
 
 Built with 💻 and ☕.
