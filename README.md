@@ -28,3 +28,6 @@ Built with 💻 and ☕.
 * Support for video reposting.
 * Check multi images support
 * Frontend to display results and error states dynamically.
+* Add screenshot preview in readme
+* Add demo on either Render or Railway
+* Also add under feature, a good way to save content
