@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from atproto import Client
 from playwright.sync_api import sync_playwright
 import requests
@@ -101,8 +102,16 @@ def post_to_bluesky(tweet_url: str):
         logging.info(f"Media URLs found: {media_urls}")
 
     client = Client()
-    creds = json.load(open(CREDS_PATH))
-    client.login(creds['username'], creds['password'])
+    try:
+        creds = json.load(open(CREDS_PATH))
+        username = creds['username']
+        password = creds['password']
+    except FileNotFoundError as e:
+        logging.info(f"No creds file, fall back to env vars: {str(e)}")
+        username = os.getenv("BSKY_USERNAME")
+        password = os.getenv("BSKY_PASSWORD")
+
+    client.login(username, password)
 
     if not media_urls:
         logging.info("No media URLs found.")
