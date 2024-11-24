@@ -5,7 +5,7 @@ Just run the app, enter a twitter URL and it'll scrape the data for you and post
 
 ## Features
 📤 **Tweet to Bluesky Posting**: Quickly repost any Tweet to Bluesky by providing its URL.  
-
+**Save Your Favorites**: Since there's no bookmarks, save your favorites in one account.
 
 ## Setup
 Clone the repository:
@@ -21,13 +21,12 @@ make run
 ## License
 This project is licensed under the MIT License.
 
+## Acknowledgements
+Reliable strategy scrape found @ https://scrapfly.io/blog/how-to-scrape-twitter/
+Helpful examples for BSky API @ https://github.com/MarshalX/atproto/tree/main/examples
 Built with 💻 and ☕.
 
-
 ## TODO
-* Support for video reposting.
-* Check multi images support
 * Frontend to display results and error states dynamically.
 * Add screenshot preview in readme
 * Add demo on either Render or Railway
-* Also add under feature, a good way to save content

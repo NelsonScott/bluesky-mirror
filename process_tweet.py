@@ -87,21 +87,50 @@ def post_to_bluesky(tweet_url: str):
     media_urls = []
     if 'extended_entities' in tweet_content['legacy']:
         media = tweet_content['legacy']['extended_entities']['media']
-        media_urls = [item['media_url_https'] for item in media]
+        for item in media:
+            if item['type'] == 'video':
+                variants = item['video_info']['variants']
+                mp4_variants = [v for v in variants if v['content_type'] == 'video/mp4']
+                if mp4_variants:
+                    # Sort by bitrate and get the highest quality
+                    highest_quality = max(mp4_variants, key=lambda x: x.get('bitrate', 0))
+                    media_urls.append(highest_quality['url'])
+            else:
+                media_urls.append(item['media_url_https'])
+        
         logging.info(f"Media URLs found: {media_urls}")
 
     client = Client()
     creds = json.load(open(CREDS_PATH))
-    username = creds['username']
-    password = creds['password']
-    client.login(username, password)
-    
-    if media_urls:
-        img_data = requests.get(media_urls[0]).content
-        logging.info(f"Tweet text: {tweet_text}")
-        logging.info(f"Posting tweet with image.")
-        post = client.send_image(text=tweet_text, image=img_data, image_alt="Image Alt")
-    else:
-        post = client.send_post(tweet_text)
+    client.login(creds['username'], creds['password'])
 
-    return post
+    if not media_urls:
+        logging.info("No media URLs found.")
+        logging.info(f"Posting tweet without image.")
+        return client.send_post(tweet_text)
+    
+    images_data = []
+    for url in media_urls:
+        try:
+            # Check if it's a video URL (looking for typical video path indicators)
+            is_video = any(x in url.lower() for x in ['/video/', '.mp4', 'vid/'])
+            
+            response = requests.get(url)
+            response.raise_for_status()  # Raise exception for bad status codes
+            if is_video:
+                logging.info(f"Uploading video from {url}")
+                return client.send_video(text=tweet_text, video=response.content, video_alt='video')
+            else:
+                logging.info(f"Downloading image from {url}")
+                images_data.append(response.content)
+        except Exception as e:
+            logging.error(f"Error processing media URL {url}: {str(e)}")
+            continue
+
+    if images_data:
+        logging.info(f"Posting with {len(images_data)} images")
+        image_alts = [f"Image {i}" for i in range(len(images_data))]
+        return client.send_images(text=tweet_text, images=images_data, image_alts=image_alts)
+    else:
+        logging.warning("Failed to process any media. Posting text only.")
+        return client.send_post(tweet_text)
