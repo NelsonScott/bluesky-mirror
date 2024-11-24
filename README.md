@@ -22,9 +22,9 @@ make run
 This project is licensed under the MIT License.
 
 ## Acknowledgements
-Reliable strategy scrape found @ https://scrapfly.io/blog/how-to-scrape-twitter/
-Helpful examples for BSky API @ https://github.com/MarshalX/atproto/tree/main/examples
-Built with 💻 and ☕.
+* Reliable strategy scrape found @ https://scrapfly.io/blog/how-to-scrape-twitter/
+* Helpful examples for BSky API @ https://github.com/MarshalX/atproto/tree/main/examples
+* Built with 💻 and ☕.
 
 ## TODO
 * Frontend to display results and error states dynamically.
