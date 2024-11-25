@@ -5,6 +5,7 @@ dev-run:
 	pipenv run python app.py
 
 install:
+	pipenv run playwright install-deps
 	pipenv install
 	pipenv run playwright install
 
