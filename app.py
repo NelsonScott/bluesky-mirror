@@ -1,9 +1,10 @@
 import json
+import os
 from flask import Flask, redirect, request, render_template, session, url_for
 from process_tweet import post_to_bluesky
 
 app = Flask(__name__)
-app.secret_key = json.load(open("credentials.json"))['secret_key']
+app.secret_key = os.environ.get('secret_key') or json.load(open("credentials.json"))['secret_key']
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
