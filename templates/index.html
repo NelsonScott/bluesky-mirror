@@ -186,18 +186,18 @@
                     <p>Submit a Twitter URL to mirror its content on your Bluesky Account</p>
                     <form id="tweet-form" method="POST" class="needs-validation" novalidate>
                         <div class="mb-3 form-group">
-                            <label for="tweet_url" class="form-label">Tweet URL</label>
-                            <input type="text" id="tweet_url" name="tweet_url" class="form-control" placeholder="https://twitter.com/..." required>
+                            <input type="text" id="tweet_url" name="tweet_url" class="form-control" 
+                                placeholder="Enter Twitter URL" required>
                             <div class="invalid-feedback">Please enter a valid tweet URL.</div>
                         </div>
                         <div class="mb-3 form-group">
-                            <label for="username" class="form-label">Bluesky Username</label>
-                            <input type="text" id="username" name="username" class="form-control" placeholder="username.bsky.social" value="{{ username }}">
+                            <input type="text" id="username" name="username" class="form-control" 
+                                placeholder="username.bsky.social" value="{{ username }}">
                             <div class="invalid-feedback">Please enter your Bluesky username.</div>
                         </div>
                         <div class="mb-3 form-group">
-                            <label for="password" class="form-label">Bluesky Password</label>
-                            <input type="password" id="password" name="password" class="form-control" placeholder="Password" value="{{ password }}">
+                            <input type="password" id="password" name="password" class="form-control" 
+                                placeholder="Bluesky password" value="{{ password }}">
                             <div class="invalid-feedback">Please enter your Bluesky password.</div>
                         </div>                    
                         <button type="submit" class="btn btn-primary w-100">Convert Tweet</button>
