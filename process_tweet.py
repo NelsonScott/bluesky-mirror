@@ -72,7 +72,7 @@ def _clean_tweet_text(full_text: str) -> str:
     
     return cleaned_text
 
-def post_to_bluesky(tweet_url: str):
+def post_to_bluesky(tweet_url: str, username: str, password: str):
     """
     Post the scraped via Bluesky API
     """
@@ -102,15 +102,6 @@ def post_to_bluesky(tweet_url: str):
         logging.info(f"Media URLs found: {media_urls}")
 
     client = Client()
-    try:
-        creds = json.load(open(CREDS_PATH))
-        username = creds['username']
-        password = creds['password']
-    except FileNotFoundError as e:
-        logging.info(f"No creds file, fall back to env vars: {str(e)}")
-        username = os.getenv("BSKY_USERNAME")
-        password = os.getenv("BSKY_PASSWORD")
-
     client.login(username, password)
 
     if not media_urls:

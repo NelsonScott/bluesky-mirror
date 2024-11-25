@@ -6,6 +6,7 @@ dev-run:
 
 install:
 	pipenv install
+	pipenv run playwright install
 
 test:
 	pipenv run pytest

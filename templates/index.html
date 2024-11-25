@@ -106,7 +106,7 @@
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 12px;
             padding: 0.875rem 1rem;
-            color: #fff;
+            color: #1e293b;
             font-size: 1rem;
             transition: all 0.3s ease;
             text-align: center;
@@ -190,6 +190,16 @@
                             <input type="text" id="tweet_url" name="tweet_url" class="form-control" placeholder="https://twitter.com/..." required>
                             <div class="invalid-feedback">Please enter a valid tweet URL.</div>
                         </div>
+                        <div class="mb-3 form-group">
+                            <label for="username" class="form-label">Bluesky Username</label>
+                            <input type="text" id="username" name="username" class="form-control" placeholder="username.bsky.social" value="{{ username }}">
+                            <div class="invalid-feedback">Please enter your Bluesky username.</div>
+                        </div>
+                        <div class="mb-3 form-group">
+                            <label for="password" class="form-label">Bluesky Password</label>
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Password" value="{{ password }}">
+                            <div class="invalid-feedback">Please enter your Bluesky password.</div>
+                        </div>                    
                         <button type="submit" class="btn btn-primary w-100">Convert Tweet</button>
                     </form>
                 </div>

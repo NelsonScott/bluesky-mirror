@@ -14,8 +14,8 @@ git clone git@github.com:NelsonScott/bluesky-mirror.git
 cd bluesky-mirror
 pipenv install
 
-# create/update credentials.json
-make run
+# set a 'secret_key' in credentials.json, then you can run it locally
+make dev-run
 ```
 
 ## License
@@ -30,3 +30,4 @@ This project is licensed under the MIT License.
 * Frontend to display results and error states dynamically.
 * Add screenshot preview in readme
 * Add demo on either Render or Railway
+* update tags twitter content to bluesky username
