@@ -1,19 +1,33 @@
-run:
-	pipenv run gunicorn app:app --workers 3
+local-install:
+	pipenv install
+	pipenv run playwright install
 
 dev-run:
 	pipenv run python app.py
 
-install-render:
-	apt-get update && apt-get install -y \
-		libgstreamer-gl1.0-0 \
-		libgstreamer-plugins-bad1.0-0 \
-		libenchant-2-2 \
-		libsecret-1-0 \
-		libmanette-0.2-0 \
-		libgles2-mesa
-	pipenv install
-	pipenv run playwright install
+local-run:
+	pipenv run gunicorn app:app --workers 3
 
-test:
-	pipenv run pytest
+docker-build:
+	docker build -t bluesky-mirror .
+
+docker-run: docker-build
+	docker run -p 8000:8000 bluesky-mirror
+
+docker-dev-run: docker-build
+	docker run -p 8000:8000 -v $(PWD):/app bluesky-mirror python app.py
+
+# Flexible targets that use local or Docker based on an environment variable
+install:
+	@if [ "$$USE_DOCKER" = "true" ]; then \
+		$(MAKE) docker-build; \
+	else \
+		$(MAKE) local-install; \
+	fi
+
+run:
+	@if [ "$$USE_DOCKER" = "true" ]; then \
+		$(MAKE) docker-run; \
+	else \
+		$(MAKE) local-run; \
+	fi
