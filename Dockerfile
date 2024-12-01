@@ -32,6 +32,4 @@ COPY . .
 # Expose port 8000
 EXPOSE 8000
 
-# Default command to run the app
-# Overriding this on Render to 1 because it may have OOM issues on free tier
 CMD ["gunicorn", "-w", "3", "-b", "0.0.0.0:8000", "app:app"]
