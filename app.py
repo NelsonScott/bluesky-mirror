@@ -11,6 +11,7 @@ elif os.path.exists("credentials.json"):
 else:
     raise ValueError("No secret key found in environment or credentials.json")
 
+# routes
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'POST':
@@ -32,6 +33,3 @@ def home():
     password = session.get('password', '')
 
     return render_template('index.html', username=username, password=password)
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)

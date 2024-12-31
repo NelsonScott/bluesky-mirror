@@ -3,7 +3,7 @@ local-install:
 	pipenv run playwright install
 
 dev-run:
-	pipenv run python app.py
+	pipenv run python run.py
 
 local-run:
 	pipenv run gunicorn app:app --workers 3
@@ -15,7 +15,7 @@ docker-run: docker-build
 	docker run -p 8000:8000 --name bluesky-mirror bluesky-mirror
 
 docker-dev-run: docker-build
-	docker run -p 8000:8000 -v $(PWD):/app --name bluesky-mirror bluesky-mirror python app.py
+	docker run -p 8000:8000 -v $(PWD):/app --name bluesky-mirror bluesky-mirror python run.py
 
 # Flexible targets that use local or Docker based on an environment variable
 install:
