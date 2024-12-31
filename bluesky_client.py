@@ -1,22 +1,16 @@
 import logging
-from atproto import Client
 import requests
-from twitter_client import get_tweet_data
-
-CREDS_PATH = "credentials.json"
+from atproto import Client
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-def post_to_bluesky(tweet_url: str, username: str, password: str):
+def post_to_bluesky(tweet_content: dict, username: str, password: str):
     """
     Post the scraped via Bluesky API
     """
-    logging.info(f"Preparing to post to Bluesky for tweet URL: {tweet_url}")
-
-    tweet_content = get_tweet_data(tweet_url)
     tweet_text = tweet_content['legacy']['full_text']
     logging.info(f"Tweet text scraped: {tweet_text}")
     tweet_text = _clean_tweet_text(tweet_text)
