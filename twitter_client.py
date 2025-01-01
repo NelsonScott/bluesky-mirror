@@ -1,49 +1,160 @@
+import json
 import logging
+import time
+from typing import List, Dict
 from playwright.sync_api import sync_playwright
 
-HEADLESS = True
+from tweet import Tweet
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def get_tweet_data(url: str) -> dict:
+HEADLESS = True
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+
+def get_single_tweet_data(url: str) -> dict:
     """
     Scrape a single tweet page for Tweet data
     """
     logging.info(f"Starting to scrape tweet from URL: {url}")
+    xhr_calls = []
 
-    _xhr_calls = []
-
-    def intercept_response(response):
-        """capture all background requests and save them"""
-        # we can extract details from background requests
+    def handle_response(response):
         if response.request.resource_type == "xhr":
-            _xhr_calls.append(response)
+            xhr_calls.append(response)
         return response
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=HEADLESS)
-        context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
-            viewport={"width": 1920, "height": 1080}
-        )
-        page = context.new_page()
+        try:
+            browser = pw.chromium.launch(headless=HEADLESS)
+            # TODO: network calls seem different logged in/not logged in 
+            # Need to see about matching get multiple tweets function call
+            context = browser.new_context(
+                # storage_state="twitter_auth.json",
+                user_agent=USER_AGENT,
+                viewport={"width": 1920, "height": 1080},
+            )
+            page = context.new_page()
+            page.on("response", handle_response)
+
+            page.goto(url, wait_until="domcontentloaded")
+            page.wait_for_selector("[data-testid='tweet']")
+
+            tweet_calls = [f for f in xhr_calls if "TweetResultByRestId" in f.url]
+            for xhr in tweet_calls:
+                data = xhr.json()
+                logging.info("Successfully scraped tweet data.")
+                return data["data"]["tweetResult"]["result"]
+
+            logging.warning("No tweet data found.")
+            raise Exception("No tweet data found.")
+
+        finally:
+            if "browser" in locals():
+                browser.close()
 
 
-        # enable background request intercepting:
-        page.on("response", intercept_response)
-        # go to url and wait for the page to load
-        page.goto(url)
-        page.wait_for_selector("[data-testid='tweet']")
+def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Dict]:
+    """
+    Scrape recent tweets from a user's profile
 
-        # find all tweet background requests:
-        tweet_calls = [f for f in _xhr_calls if "TweetResultByRestId" in f.url]
-        for xhr in tweet_calls:
-            data = xhr.json()
-            logging.info("Successfully scraped tweet data.")
-            return data['data']['tweetResult']['result']
-    
-    logging.warning("No tweet data found.")
-    raise Exception("No tweet data found.")
+    Args:
+        username (str): Twitter username without '@'
+        max_tweets (int): Maximum number of tweets to scrape
+
+    Returns:
+        List[Dict]: List of tweet data dictionaries
+    """
+    logging.info(f"Starting to scrape tweets from user: {username}")
+    tweets_data = []
+    xhr_calls = []
+
+    def handle_response(response):
+        try:
+            if "UserTweets" in response.url and response.status == 200:
+                xhr_calls.append(response)
+                try:
+                    data = response.json()
+                    if "data" in data:
+                        timeline_entries = (
+                            data.get("data", {})
+                            .get("user", {})
+                            .get("result", {})
+                            .get("timeline_v2", {})
+                            .get("timeline", {})
+                            .get("instructions", [])
+                        )
+
+                        for instruction in timeline_entries:
+                            if instruction.get("type") == "TimelineAddEntries":
+                                for entry in instruction.get("entries", []):
+                                    result = (
+                                        entry.get("content", {})
+                                        .get("itemContent", {})
+                                        .get("tweet_results", {})
+                                        .get("result", {})
+                                    )
+
+                                    if result and result not in tweets_data:
+                                        tweets_data.append(result)
+                                        logging.info(f"Found tweet: {len(tweets_data)}")
+
+                except Exception as e:
+                    logging.error(f"Error processing response JSON: {str(e)}")
+        except Exception as e:
+            logging.error(f"Error in response handler: {str(e)}")
+
+    with sync_playwright() as pw:
+        try:
+            browser = pw.chromium.launch(headless=HEADLESS)
+            context = browser.new_context(
+                storage_state="twitter_auth.json",
+                user_agent=USER_AGENT,
+                viewport={"width": 1920, "height": 1080},
+            )
+
+            page = context.new_page()
+            page.on("response", handle_response)
+
+            profile_url = f"https://twitter.com/{username}"
+            logging.info(f"Navigating to: {profile_url}")
+            page.goto(profile_url)
+
+            page.wait_for_selector("article[data-testid='tweet']", timeout=10000)
+            time.sleep(2)  # Initial pause for dynamic content
+
+            scroll_attempts = 0
+            max_scroll_attempts = 5
+
+            while (
+                len(tweets_data) < max_tweets and scroll_attempts < max_scroll_attempts
+            ):
+                page.evaluate("window.scrollBy(0, 1000)")
+                time.sleep(2)
+                scroll_attempts += 1
+                logging.info(
+                    f"Scroll attempt {scroll_attempts}, found {len(tweets_data)} tweets"
+                )
+
+            if len(tweets_data) == 0:
+                logging.warning("No tweets found. Debug info:")
+                logging.warning(f"Number of XHR calls captured: {len(xhr_calls)}")
+                for i, call in enumerate(xhr_calls):
+                    try:
+                        data = call.json()
+                        logging.warning(f"XHR call {i + 1} data structure:")
+                        logging.warning(json.dumps(data, indent=2)[:500] + "...")
+                    except Exception as e:
+                        logging.error(f"Error parsing XHR call {i + 1}: {str(e)}")
+
+            tweets = [Tweet.from_api_response(tweet_data) for tweet_data in tweets_data]
+            return tweets
+
+        except Exception as e:
+            logging.error(f"Error during scraping: {str(e)}")
+            return []
+        finally:
+            if "browser" in locals():
+                browser.close()

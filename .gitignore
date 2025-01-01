@@ -6,3 +6,4 @@ pycache/
 .venv
 *.log
 __pycache__
+twitter_auth.json

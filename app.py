@@ -2,7 +2,7 @@ import json
 import os
 from flask import Flask, redirect, request, render_template, session, url_for
 from bluesky_client import post_to_bluesky
-from twitter_client import get_tweet_data
+from twitter_client import get_single_tweet_data
 
 app = Flask(__name__)
 if os.environ.get('secret_key'):
@@ -25,7 +25,7 @@ def home():
 
         if tweet_url:
             try:
-                tweet_content = get_tweet_data(tweet_url)
+                tweet_content = get_single_tweet_data(tweet_url)
                 post_to_bluesky(tweet_content=tweet_content, username=username, password=password)
                 return redirect(url_for('home'))
             except Exception as e:
