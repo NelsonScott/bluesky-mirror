@@ -4,13 +4,10 @@ from flask import Flask, redirect, request, render_template, session, url_for
 from bluesky_client import post_to_bluesky
 from twitter_client import get_single_tweet_data
 
+from config import load_config
+
 app = Flask(__name__)
-if os.environ.get('secret_key'):
-    app.secret_key = os.environ.get('secret_key')
-elif os.path.exists("credentials.json"):
-    app.secret_key = json.load(open("credentials.json", 'r'))['secret_key']
-else:
-    raise ValueError("No secret key found in environment or credentials.json")
+app.secret_key = load_config()['secret_key']
 
 # routes
 @app.route('/', methods=['GET', 'POST'])

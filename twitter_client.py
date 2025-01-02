@@ -13,7 +13,7 @@ logging.basicConfig(
 HEADLESS = True
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
-
+#TODO: change to return tweet object
 def get_single_tweet_data(url: str) -> dict:
     """
     Scrape a single tweet page for Tweet data
@@ -56,7 +56,7 @@ def get_single_tweet_data(url: str) -> dict:
                 browser.close()
 
 
-def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Dict]:
+def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
     """
     Scrape recent tweets from a user's profile
 

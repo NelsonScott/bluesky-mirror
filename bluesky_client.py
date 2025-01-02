@@ -2,36 +2,25 @@ import logging
 import requests
 from atproto import Client
 
+from tweet import Tweet
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-def post_to_bluesky(tweet_content: dict, username: str, password: str):
+def post_to_bluesky(tweet: Tweet, username: str, password: str):
     """
     Post the scraped via Bluesky API
     """
-    tweet_text = tweet_content['legacy']['full_text']
+    tweet_text = tweet.text
     logging.info(f"Tweet text scraped: {tweet_text}")
     tweet_text = _clean_tweet_text(tweet_text)
     logging.info(f"Tweet text cleaned: {tweet_text}")
 
     # Extract media URLs if available
-    media_urls = []
-    if 'extended_entities' in tweet_content['legacy']:
-        media = tweet_content['legacy']['extended_entities']['media']
-        for item in media:
-            if item['type'] == 'video':
-                variants = item['video_info']['variants']
-                mp4_variants = [v for v in variants if v['content_type'] == 'video/mp4']
-                if mp4_variants:
-                    # Sort by bitrate and get the highest quality
-                    highest_quality = max(mp4_variants, key=lambda x: x.get('bitrate', 0))
-                    media_urls.append(highest_quality['url'])
-            else:
-                media_urls.append(item['media_url_https'])
-        
-        logging.info(f"Media URLs found: {media_urls}")
+    media_urls = tweet.media_urls        
+    logging.info(f"Media URLs found: {media_urls}")
 
     client = Client()
     client.login(username, password)
