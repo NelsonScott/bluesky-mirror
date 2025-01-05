@@ -1,12 +1,12 @@
 import json
-import logging
+import colorlog
 import time
 from typing import List 
 from playwright.sync_api import sync_playwright
 
 from tweet import Tweet
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = colorlog.getLogger(__name__)
 
 HEADLESS = True
 USER_AGENT = (
@@ -27,7 +27,7 @@ def get_single_tweet_data(url: str) -> Tweet:
     Raises:
         Exception: If no tweet data is found
     """
-    logging.info(f"Starting to scrape tweet from URL: {url}")
+    logger.info(f"Starting to scrape tweet from URL: {url}")
     xhr_calls = []
 
     def handle_response(response):
@@ -51,10 +51,10 @@ def get_single_tweet_data(url: str) -> Tweet:
             for xhr in tweet_calls:
                 data = xhr.json()
                 tweet_data = data["data"]["tweetResult"]["result"]
-                logging.info("Successfully scraped tweet data.")
+                logger.info("Successfully scraped tweet data.")
                 return Tweet.from_api_response(tweet_data)
 
-            logging.warning("No tweet data found.")
+            logger.warning("No tweet data found.")
             raise Exception("No tweet data found.")
         finally:
             if "browser" in locals():
@@ -72,7 +72,7 @@ def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
     Returns:
         List List of Tweet objects scraped from the user's profile
     """
-    logging.info(f"Starting to scrape tweets from user: {username}")
+    logger.info(f"Starting to scrape tweets from user: {username}")
     tweets_data = []
     xhr_calls = []
 
@@ -104,12 +104,12 @@ def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
 
                                     if result and result not in tweets_data:
                                         tweets_data.append(result)
-                                        logging.info(f"Found tweet: {len(tweets_data)}")
+                                        logger.info(f"Found tweet: {len(tweets_data)}")
 
                 except Exception as e:
-                    logging.error(f"Error processing response JSON: {str(e)}")
+                    logger.error(f"Error processing response JSON: {str(e)}")
         except Exception as e:
-            logging.error(f"Error in response handler: {str(e)}")
+            logger.error(f"Error in response handler: {str(e)}")
 
     with sync_playwright() as pw:
         try:
@@ -124,7 +124,7 @@ def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
             page.on("response", handle_response)
 
             profile_url = f"https://twitter.com/{username}"
-            logging.info(f"Navigating to: {profile_url}")
+            logger.info(f"Navigating to: {profile_url}")
             page.goto(profile_url)
 
             page.wait_for_selector("article[data-testid='tweet']", timeout=10000)
@@ -137,24 +137,24 @@ def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
                 page.evaluate("window.scrollBy(0, 1000)")
                 time.sleep(2)
                 scroll_attempts += 1
-                logging.info(f"Scroll attempt {scroll_attempts}, found {len(tweets_data)} tweets")
+                logger.info(f"Scroll attempt {scroll_attempts}, found {len(tweets_data)} tweets")
 
             if len(tweets_data) == 0:
-                logging.warning("No tweets found. Debug info:")
-                logging.warning(f"Number of XHR calls captured: {len(xhr_calls)}")
+                logger.warning("No tweets found. Debug info:")
+                logger.warning(f"Number of XHR calls captured: {len(xhr_calls)}")
                 for i, call in enumerate(xhr_calls):
                     try:
                         data = call.json()
-                        logging.warning(f"XHR call {i + 1} data structure:")
-                        logging.warning(json.dumps(data, indent=2)[:500] + "...")
+                        logger.warning(f"XHR call {i + 1} data structure:")
+                        logger.warning(json.dumps(data, indent=2)[:500] + "...")
                     except Exception as e:
-                        logging.error(f"Error parsing XHR call {i + 1}: {str(e)}")
+                        logger.error(f"Error parsing XHR call {i + 1}: {str(e)}")
 
             tweets = [Tweet.from_api_response(tweet_data) for tweet_data in tweets_data]
             return tweets
 
         except Exception as e:
-            logging.error(f"Error during scraping: {str(e)}")
+            logger.error(f"Error during scraping: {str(e)}")
             return []
         finally:
             if "browser" in locals():

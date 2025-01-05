@@ -3,16 +3,37 @@ import logging
 from typing import List
 from threading import Thread
 
+import colorlog
+
 from app import app
 from bluesky_client import post_to_bluesky
 from tweet import Tweet
 from twitter_client import get_user_tweets_data
 from config import load_config, update_last_tweet_id
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+handler = colorlog.StreamHandler()
+handler.setFormatter(
+    colorlog.ColoredFormatter(
+        "%(log_color)s%(asctime)s | %(levelname)-8s | %(message)s%(reset)s",
+        datefmt="%m/%d %I:%M:%S %p",  # Gives you: 01/02 04:37:34 PM
+        log_colors={
+            "DEBUG": "cyan",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "red,bg_white",
+        },
+        secondary_log_colors={},
+        style="%",
+    )
+)
 
-# 5 hours * 60 minutes * 60 seconds
-MIRROR_INTERVAL = 5 * 60 * 60  # 18000 seconds (5 hours)
+logger = colorlog.getLogger()
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+
+MIRROR_INTERVAL = 60 * 60  # 3600 seconds (1 hours)
 
 
 def mirror_tweets():

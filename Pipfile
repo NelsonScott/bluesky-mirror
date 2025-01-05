@@ -10,7 +10,7 @@ bs4 = "*"
 selenium = "*"
 playwright = "*"
 flask = "*"
-gunicorn = "*"
+colorlog = "*"
 
 [dev-packages]
 ipython = "*"
