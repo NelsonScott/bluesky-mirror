@@ -103,9 +103,6 @@ def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
                                     )
 
                                     if result and result not in tweets_data:
-                                        # temporary debug
-                                        with open(f'tweet_response_{len(tweets_data)}.json', 'w') as f:
-                                            json.dump(result, f, indent=2)
                                         tweets_data.append(result)
                                         logger.info(f"Found tweet: {len(tweets_data)}")
 
