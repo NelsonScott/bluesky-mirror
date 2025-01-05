@@ -103,6 +103,9 @@ def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
                                     )
 
                                     if result and result not in tweets_data:
+                                        # temporary debug
+                                        with open(f'tweet_response_{len(tweets_data)}.json', 'w') as f:
+                                            json.dump(result, f, indent=2)
                                         tweets_data.append(result)
                                         logger.info(f"Found tweet: {len(tweets_data)}")
 
@@ -151,7 +154,12 @@ def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
                         logger.error(f"Error parsing XHR call {i + 1}: {str(e)}")
 
             tweets = [Tweet.from_api_response(tweet_data) for tweet_data in tweets_data]
-            return tweets
+            non_retweet_tweets = [tweet for tweet in tweets if not tweet.is_retweet]
+            
+            if len(tweets) != len(non_retweet_tweets):
+                logger.info(f"Filtered out {len(tweets) - len(non_retweet_tweets)} retweets")
+
+            return non_retweet_tweets
 
         except Exception as e:
             logger.error(f"Error during scraping: {str(e)}")

@@ -1,6 +1,6 @@
 # tweet.py
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
 @dataclass
 class Tweet:
@@ -8,15 +8,19 @@ class Tweet:
     id: str
     created_at: str
     media_urls: List[str] = None
+    is_retweet: bool = False
     
     @classmethod
     def from_api_response(cls, data: dict) -> 'Tweet':
         """Create a Tweet instance from Twitter's API response"""
+        is_retweet = 'retweeted_status_result' in data['legacy']
+
         return cls(
             text=data['legacy']['full_text'],
             id=data['legacy']['id_str'],
             created_at=data['legacy']['created_at'],
-            media_urls=_extract_media_urls(data)
+            media_urls=_extract_media_urls(data),
+            is_retweet=is_retweet
         )
 
 def _extract_media_urls(data: dict) -> List[str]:
