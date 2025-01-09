@@ -15,7 +15,7 @@ handler = colorlog.StreamHandler()
 handler.setFormatter(
     colorlog.ColoredFormatter(
         "%(log_color)s%(asctime)s | %(levelname)-8s | %(message)s%(reset)s",
-        datefmt="%m/%d %I:%M:%S %p",  # Gives you: 01/02 04:37:34 PM
+        datefmt="%m/%d %I:%M:%S %p %Z",  # exp "01/02 04:37:34 PM EST"
         log_colors={
             "DEBUG": "cyan",
             "INFO": "green",

@@ -1,5 +1,8 @@
 FROM python:3.13-slim
 
+# Set timezone
+ENV TZ=America/New_York
+
 # Install system dependencies for Playwright
 RUN apt-get update && apt-get install -y \
     wget \
