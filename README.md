@@ -43,6 +43,8 @@ This project is licensed under the MIT License.
 * Built with 💻 and ☕
 
 ## TODO
+* Quote tweet handling strategies
+* Custom tweet filters (e.g., block mirroring specific words mentions)
+
 * Frontend to display results and error states dynamically
-* Update tags twitter content to bluesky username
 * Errors should display nicely to user, not disrupt whole page

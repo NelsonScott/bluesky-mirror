@@ -46,42 +46,50 @@ def mirror_tweets():
     while True:
         try:
             config = load_config()
-            bluesky_config = config["bluesky"]
-            mirror_config = config["mirror"]
+            accounts_to_mirror = config["accounts_to_mirror"]
 
-            logging.info("Checking for new tweets from @%s", mirror_config["twitter_account"])
+            for account_config in accounts_to_mirror:
+                logging.info("Checking for new tweets from @%s", account_config["twitter_account"])
 
-            # TODO: max tweet limit seems ignored
-            tweets: List[Tweet] = get_user_tweets_data(username=mirror_config["twitter_account"], max_tweets=1)
+                # TODO: max tweet limit seems ignored
+                tweets: List[Tweet] = get_user_tweets_data(username=account_config["twitter_account"], max_tweets=1)
 
-            if not tweets:
-                logging.info("No tweets found")
-                continue
+                if not tweets:
+                    logging.info("No tweets found")
+                    continue
 
-            latest_tweet = tweets[0]
-            with Session(engine) as session:
-                tweet_in_db = session.get(Tweet, latest_tweet.id)
-                if tweet_in_db and tweet_in_db.mirrored_at:
-                    logging.info("Tweet already mirrored")
-                else:
-                    logging.info("Found new tweet (ID: %s), mirroring to Bluesky", latest_tweet.id)
-                    post_to_bluesky(
-                        tweet=latest_tweet,
-                        username=bluesky_config["username"],
-                        password=bluesky_config["password"],
-                    )
-
-                    if not tweet_in_db:
-                        tweet_in_db = latest_tweet
-                        session.add(tweet_in_db)
-                    tweet_in_db.mirrored_at = datetime.now(timezone.utc)
-                    session.commit()
-                    logging.info("Successfully mirrored tweet")
+                latest_tweet = tweets[0]
+                mirror_tweet(latest_tweet, config)
         except Exception as e:
-            logging.error("Error during mirroring: %s", str(e))
+            logging.error("Critical error in tweet mirroring process", exc_info=True)
         finally:
             time.sleep(MIRROR_INTERVAL)
 
+def mirror_tweet(tweet: Tweet, config: dict):
+    """
+    Mirror a single tweet to Bluesky.
+    """
+    logging.info("Mirroring tweet: %s", tweet.text)
+    bluesky_config = config["bluesky"]
+
+    with Session(engine) as session:
+        tweet_in_db = session.get(Tweet, tweet.id)
+        if tweet_in_db and tweet_in_db.mirrored_at:
+            logging.info("Tweet already mirrored")
+        else:
+            logging.info("Found new tweet (ID: %s), mirroring to Bluesky", tweet.id)
+            post_to_bluesky(
+                tweet=tweet,
+                username=bluesky_config["username"],
+                password=bluesky_config["password"],
+            )
+
+            if not tweet_in_db:
+                tweet_in_db = tweet
+                session.add(tweet_in_db)
+            tweet_in_db.mirrored_at = datetime.now(timezone.utc)
+            session.commit()
+            logging.info("Successfully mirrored tweet")
 
 if __name__ == "__main__":
     logging.info("Starting tweet mirror service")

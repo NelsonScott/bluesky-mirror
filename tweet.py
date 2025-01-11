@@ -8,6 +8,7 @@ from sqlmodel import Field, SQLModel
 
 # TODO: create a separate RawTweet to store raw tweet data
 # have Tweet responsible for storing processed tweet data
+# TODO: add an author column
 class Tweet(SQLModel, table=True):
     id: str = Field(primary_key=True)
     text: str
