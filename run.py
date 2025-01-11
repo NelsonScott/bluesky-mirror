@@ -1,15 +1,18 @@
+from datetime import datetime, timezone
 import time
 import logging
 from typing import List
 from threading import Thread
 
 import colorlog
+from sqlmodel import Session
 
 from app import app
 from bluesky_client import post_to_bluesky
+from database import create_db_and_tables, engine
 from tweet import Tweet
 from twitter_client import get_user_tweets_data
-from config import load_config, update_last_tweet_id
+from config import load_config
 
 handler = colorlog.StreamHandler()
 handler.setFormatter(
@@ -39,7 +42,6 @@ MIRROR_INTERVAL = 60 * 60  # 3600 seconds (1 hours)
 def mirror_tweets():
     """
     Main loop that checks for new tweets and mirrors them to Bluesky.
-    Runs continuously with error handling and retry logic.
     """
     while True:
         try:
@@ -57,21 +59,24 @@ def mirror_tweets():
                 continue
 
             latest_tweet = tweets[0]
-            last_mirrored_id = mirror_config["last_mirrored_tweet_id"]
+            with Session(engine) as session:
+                tweet_in_db = session.get(Tweet, latest_tweet.id)
+                if tweet_in_db and tweet_in_db.mirrored_at:
+                    logging.info("Tweet already mirrored")
+                else:
+                    logging.info("Found new tweet (ID: %s), mirroring to Bluesky", latest_tweet.id)
+                    post_to_bluesky(
+                        tweet=latest_tweet,
+                        username=bluesky_config["username"],
+                        password=bluesky_config["password"],
+                    )
 
-            # Check if we have a new tweet to mirror
-            if last_mirrored_id is None or last_mirrored_id != latest_tweet.id:
-                logging.info("Found new tweet (ID: %s), mirroring to Bluesky", latest_tweet.id)
-                post_to_bluesky(
-                    tweet=latest_tweet,
-                    username=bluesky_config["username"],
-                    password=bluesky_config["password"],
-                )
-                update_last_tweet_id(latest_tweet.id)
-                logging.info("Successfully mirrored tweet")
-            else:
-                logging.info("No new tweets to mirror")
-
+                    if not tweet_in_db:
+                        tweet_in_db = latest_tweet
+                        session.add(tweet_in_db)
+                    tweet_in_db.mirrored_at = datetime.now(timezone.utc)
+                    session.commit()
+                    logging.info("Successfully mirrored tweet")
         except Exception as e:
             logging.error("Error during mirroring: %s", str(e))
         finally:
@@ -80,6 +85,8 @@ def mirror_tweets():
 
 if __name__ == "__main__":
     logging.info("Starting tweet mirror service")
+    create_db_and_tables()
+
     thread = Thread(target=mirror_tweets, daemon=True)
     thread.start()
 

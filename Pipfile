@@ -11,6 +11,7 @@ selenium = "*"
 playwright = "*"
 flask = "*"
 colorlog = "*"
+sqlmodel = "*"
 
 [dev-packages]
 ipython = "*"

@@ -7,3 +7,6 @@ pycache/
 *.log
 __pycache__
 twitter_auth.json
+# Database
+*.db
+*.db-journal

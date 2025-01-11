@@ -17,7 +17,7 @@ def post_to_bluesky(tweet: Tweet, username: str, password: str):
     logger.info(f"Tweet text cleaned: {tweet_text}")
 
     # extract media urls if available
-    media_urls = tweet.media_urls
+    media_urls = tweet.media_urls_list
     logger.info(f"Media urls found: {media_urls}")
 
     client = Client()

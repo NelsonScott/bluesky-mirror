@@ -128,7 +128,7 @@ def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
             page.goto(profile_url)
 
             page.wait_for_selector("article[data-testid='tweet']", timeout=10000)
-            time.sleep(2)  # Initial pause for dynamic content
+            time.sleep(2)  # Initial pause for dynamic content; Jan 10 update not sure if needed
 
             scroll_attempts = 0
             max_scroll_attempts = 5

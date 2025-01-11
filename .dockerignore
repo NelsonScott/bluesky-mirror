@@ -7,3 +7,6 @@ pycache
 .env
 .venv
 test/
+# Database
+*.db
+*.db-journal
