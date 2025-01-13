@@ -10,11 +10,13 @@ bs4 = "*"
 selenium = "*"
 playwright = "*"
 flask = "*"
-gunicorn = "*"
+colorlog = "*"
+sqlmodel = "*"
 
 [dev-packages]
 ipython = "*"
 ipdb = "*"
+black = "*"
 
 [requires]
 python_version = "3.13"

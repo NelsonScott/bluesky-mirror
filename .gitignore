@@ -1,4 +1,4 @@
-credentials.json
+config.json
 .DS_Store
 .vscode/
 pycache/
@@ -6,3 +6,7 @@ pycache/
 .venv
 *.log
 __pycache__
+twitter_auth.json
+# Database
+*.db
+*.db-journal
