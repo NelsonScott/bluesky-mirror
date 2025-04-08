@@ -87,7 +87,7 @@ def get_user_tweets_data(username: str, max_tweets: int = 10) -> List[Tweet]:
                             data.get("data", {})
                             .get("user", {})
                             .get("result", {})
-                            .get("timeline_v2", {})
+                            .get("timeline", {})
                             .get("timeline", {})
                             .get("instructions", [])
                         )

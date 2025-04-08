@@ -12,6 +12,7 @@ playwright = "*"
 flask = "*"
 colorlog = "*"
 sqlmodel = "*"
+pywebview = "*"
 
 [dev-packages]
 ipython = "*"
